@@ -1,11 +1,17 @@
 # Isovalent Cillium Quick Start
 
-# Prerequisites
+## Overview
+
+This Quick Start demo shows You how to create the simplest Kubernetes Cluster (kind), install neccessry tool like kubectl and then install Cillium CNI and CLI tool as well hubble component to get and visual flows between sample 
+
+
+## Getting Started 
+### Prerequisites
  - host with linux and x86 architecture
  - kubectl installed: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
  - some time & patience ;) 
 
-# Cluster installation
+## Cluster installation
 
 We perform our quickstat on K8s based on kind cluster:
 
@@ -95,7 +101,7 @@ kind-worker3         NotReady   <none>          6m2s    v1.27.3
 lack of CNI makes it `NotReady` (as expected ;) )
 
 
-# Cillium CLI installation
+## Cillium CLI installation
 
 let's follow this documentation page to install Cillium CLI: https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli
 
@@ -124,7 +130,7 @@ cilium image (stable): v1.14.5
 cilium image (running): 1.14.5
 ```
 
-# Cilium instalation
+## Cilium instalation
 
 Issue following command specifing a requested Cillium version:
 
@@ -138,7 +144,7 @@ Issue following command specifing a requested Cillium version:
 🔮 Auto-detected kube-proxy has been installed
 ```
 
-# Validation
+## Validation
 
 ```bash
 ❯ cilium status --wait
@@ -337,6 +343,11 @@ IP ADDRESS       LOCAL ENDPOINT INFO
 10.244.3.230:0   id=487   sec_id=8069  flags=0x0000 ifindex=12  mac=6A:26:31:F4:C0:25 nodemac=A6:C0:11:DF:BE:4F   
 ```
 
+## Hubble installation
+
+
+First enable hubble on Cillium:
+
 ```bash
 cilium hubble enable
 ❯ cilium status
@@ -362,7 +373,7 @@ Image versions         cilium             quay.io/cilium/cilium:v1.14.5@sha256:d
 cilium hubble port-forward&
 ```
 
-Now you need to install a `hubble CLI` to get access to obserbability feauters providede by hubble:
+Now you need to install a `hubble CLI` to get access to obserbability feauters provided by hubble:
 
 ```bash
 HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
@@ -373,7 +384,7 @@ sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum
 sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
 rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
 ```
-
+Again be carefull when copy paste and remove additional `\`, if needded:
 then you can use:
 
 ```bash
@@ -448,8 +459,8 @@ Dec 28 16:32:03.113: cilium-test/client2-88575dbb7-d2pss:53580 (ID:51420) <- 1.0
 Dec 28 16:32:03.113: cilium-test/client2-88575dbb7-d2pss:53580 (ID:51420) -> 1.0.0.1:443 (world) to-stack FORWARDED (TCP Flags: ACK)
 ```
 
+## What's next?
 
-
-the best place to explore more functionalities is to deploy sample/demo app and write/apply some Cilium based Network Policies. Give it a try:
+The best place to explore more functionalities is to deploy sample/demo app and write/apply some Cilium based Network Policies. Give it a try:
 
 https://docs.cilium.io/en/stable/gettingstarted/demo/
