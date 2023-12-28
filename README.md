@@ -371,7 +371,7 @@ Image versions         cilium             quay.io/cilium/cilium:v1.14.5@sha256:d
                        hubble-relay       quay.io/cilium/hubble-relay:v1.14.5@sha256:dbef89f924a927043d02b40c18e417c1ea0e8f58b44523b80fef7e3652db24d4: 1
 ```
 
-and enable port forwarding between hubble components:
+and enable port forwarding between hubble components (TCP 4245 between hubble-ui and hubble-relay):
 ```bash                       
 cilium hubble port-forward&
 ```
