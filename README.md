@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Quick Start demo shows You how to create the simplest Kubernetes Cluster (kind), install neccessry tool like kubectl and then install Cillium CNI and CLI tool as well hubble component to get and visual flows between sample 
+This Quick Start guide demonstrates how to easily create a basic Kubernetes Cluster using Kind, install essential tools like kubectl, and then deploy Cilium CNI along with the CLI tool and Hubble component for visualizing network flows between sample applications PODs.
 
 
 ## Getting Started 
@@ -13,7 +13,7 @@ This Quick Start demo shows You how to create the simplest Kubernetes Cluster (k
 
 ## Cluster installation
 
-We perform our quickstat on K8s based on kind cluster:
+Quick Start guide focuses on a Kubernetes (K8s) cluster based on Kind. To begin, we need to install Kind. On a standard Linux host, the installation is straightforward. According to Kind's official documentation, we download the binary file directly from the Kind website:
 
  https://kind.sigs.k8s.io/docs/user/quick-start/#installation
 
@@ -103,9 +103,9 @@ lack of CNI makes it `NotReady` (as expected ;) )
 
 ## Cillium CLI installation
 
-let's follow this documentation page to install Cillium CLI: https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli
+To install the Cilium CLI, follow the instructions on this documentation page: https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli
 
-copy and execute line by line:
+Execute the following commands step by step:
 
 ```bash
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -465,23 +465,24 @@ Dec 28 16:32:03.113: cilium-test/client2-88575dbb7-d2pss:53580 (ID:51420) -> 1.0
 
 ## What's next?
 
-The best place to explore more functionalities is to deploy sample/demo app and write/apply some Cilium based Network Policies. Give it a try:
+To further explore Cilium's capabilities, consider deploying a sample/demo application and experimenting with Cilium-based Network Policies. Start with this guide. Give it a try:
 
 https://docs.cilium.io/en/stable/gettingstarted/demo/
 
-My raw output you can find below:
+My raw output and my console historyyou can find below:
 
 ```bash
-5470  kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
+ 5470  kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
  5471  kubectl get pods,svc
  5472  kubectl -n kube-system get pods -l k8s-app=cilium
- 5473  kubectl ..
+ 5473  
  5474  kubectl -n kube-system exec cilium-67j68 -- cilium endpoint list
  5475  kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
  5476  kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
  5477  kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_policy.yaml
  5478  kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
  5479  kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+
  5480  kubectl get cnp
  5481  kubectl describe cnp rule1
  5482  kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
@@ -489,11 +490,18 @@ My raw output you can find below:
  5484  kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
  5485  kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
  5486  kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+
  5487  hubble observe --pod deathstar --protocol http
  5488  hubble observe --pod deathstar --verdict DROPPED
- 5489  ls
- 5490  kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
- 5491  hist
+```
+
+
+
+```bash
+kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
+kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_policy.yaml
+kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_l7_policy.yaml
+
 ❯ kubectl describe cnp rule1
 Name:         rule1
 Namespace:    default
@@ -527,6 +535,8 @@ Spec:
 Events:            <none>
 ❯  kubectl delete cnp rule1
 ciliumnetworkpolicy.cilium.io "rule1" deleted
+
+
 ❯ kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
 service/deathstar created
 deployment.apps/deathstar created
@@ -542,14 +552,15 @@ pod/xwing                        0/1     ContainerCreating   0          3s
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 service/deathstar    ClusterIP   10.96.227.153   <none>        80/TCP    4s
 service/kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP   3h43m
+
+
 ❯ kubectl -n kube-system get pods -l k8s-app=cilium
 NAME           READY   STATUS    RESTARTS   AGE
 cilium-67j68   1/1     Running   0          3h5m
 cilium-nhqn5   1/1     Running   0          3h5m
 cilium-qqrc5   1/1     Running   0          3h5m
 cilium-tj7mf   1/1     Running   0          3h5m
-❯ kubectl -n kube-system exec cilium-5ngzd -- cilium endpoint list
-Error from server (NotFound): pods "cilium-5ngzd" not found
+
 ❯ kubectl -n kube-system exec cilium-67j68 -- cilium endpoint list
 Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), clean-cilium-state (init), install-cni-binaries (init)
 ENDPOINT   POLICY (ingress)   POLICY (egress)   IDENTITY   LABELS (source:key[=value])                                                         IPv6   IPv4           STATUS   
@@ -790,12 +801,14 @@ Press Ctrl-C to quit
 ^C
 Received an interrupt, disconnecting from monitor...
 
-❯ ^[[200~kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml\~
-200~kubectl delete -f 200~kubectlzsh: bad pattern: ^[[200~kubectl
+
+
 ❯ kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
 service "deathstar" deleted
 deployment.apps "deathstar" deleted
 pod "tiefighter" deleted
 pod "xwing" deleted
+
+
 kubectl delete cnp rule1
 ```
