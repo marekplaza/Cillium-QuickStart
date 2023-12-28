@@ -468,3 +468,334 @@ Dec 28 16:32:03.113: cilium-test/client2-88575dbb7-d2pss:53580 (ID:51420) -> 1.0
 The best place to explore more functionalities is to deploy sample/demo app and write/apply some Cilium based Network Policies. Give it a try:
 
 https://docs.cilium.io/en/stable/gettingstarted/demo/
+
+My raw output you can find below:
+
+```bash
+5470  kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
+ 5471  kubectl get pods,svc
+ 5472  kubectl -n kube-system get pods -l k8s-app=cilium
+ 5473  kubectl ..
+ 5474  kubectl -n kube-system exec cilium-67j68 -- cilium endpoint list
+ 5475  kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+ 5476  kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+ 5477  kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_policy.yaml
+ 5478  kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+ 5479  kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+ 5480  kubectl get cnp
+ 5481  kubectl describe cnp rule1
+ 5482  kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
+ 5483  kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_l7_policy.yaml
+ 5484  kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+ 5485  kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
+ 5486  kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+ 5487  hubble observe --pod deathstar --protocol http
+ 5488  hubble observe --pod deathstar --verdict DROPPED
+ 5489  ls
+ 5490  kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
+ 5491  hist
+❯ kubectl describe cnp rule1
+Name:         rule1
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+API Version:  cilium.io/v2
+Kind:         CiliumNetworkPolicy
+Metadata:
+  Creation Timestamp:  2023-12-28T17:48:51Z
+  Generation:          2
+  Resource Version:    23968
+  UID:                 6aec26cc-94e6-4825-9798-46be2fcd8bb3
+Spec:
+  Description:  L7 policy to restrict access to specific HTTP call
+  Endpoint Selector:
+    Match Labels:
+      Class:  deathstar
+      Org:    empire
+  Ingress:
+    From Endpoints:
+      Match Labels:
+        Org:  empire
+    To Ports:
+      Ports:
+        Port:      80
+        Protocol:  TCP
+      Rules:
+        Http:
+          Method:  POST
+          Path:    /v1/request-landing
+Events:            <none>
+❯  kubectl delete cnp rule1
+ciliumnetworkpolicy.cilium.io "rule1" deleted
+❯ kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
+service/deathstar created
+deployment.apps/deathstar created
+pod/tiefighter created
+pod/xwing created
+❯ kubectl get pods,svc
+NAME                             READY   STATUS              RESTARTS   AGE
+pod/deathstar-7848d6c4d5-sjp98   0/1     ContainerCreating   0          4s
+pod/deathstar-7848d6c4d5-x9g4w   0/1     ContainerCreating   0          4s
+pod/tiefighter                   0/1     ContainerCreating   0          3s
+pod/xwing                        0/1     ContainerCreating   0          3s
+
+NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/deathstar    ClusterIP   10.96.227.153   <none>        80/TCP    4s
+service/kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP   3h43m
+❯ kubectl -n kube-system get pods -l k8s-app=cilium
+NAME           READY   STATUS    RESTARTS   AGE
+cilium-67j68   1/1     Running   0          3h5m
+cilium-nhqn5   1/1     Running   0          3h5m
+cilium-qqrc5   1/1     Running   0          3h5m
+cilium-tj7mf   1/1     Running   0          3h5m
+❯ kubectl -n kube-system exec cilium-5ngzd -- cilium endpoint list
+Error from server (NotFound): pods "cilium-5ngzd" not found
+❯ kubectl -n kube-system exec cilium-67j68 -- cilium endpoint list
+Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), clean-cilium-state (init), install-cni-binaries (init)
+ENDPOINT   POLICY (ingress)   POLICY (egress)   IDENTITY   LABELS (source:key[=value])                                                         IPv6   IPv4           STATUS   
+           ENFORCEMENT        ENFORCEMENT                                                                                                                            
+235        Disabled           Disabled          4          reserved:health                                                                            10.244.3.13    ready   
+465        Disabled           Disabled          16771      k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name=kube-system                 10.244.3.134   ready   
+                                                           k8s:io.cilium.k8s.policy.cluster=kind-kind                                                                        
+                                                           k8s:io.cilium.k8s.policy.serviceaccount=coredns                                                                   
+                                                           k8s:io.kubernetes.pod.namespace=kube-system                                                                       
+                                                           k8s:k8s-app=kube-dns                                                                                              
+487        Disabled           Disabled          8069       k8s:app=local-path-provisioner                                                             10.244.3.230   ready   
+                                                           k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name=local-path-storage                                 
+                                                           k8s:io.cilium.k8s.policy.cluster=kind-kind                                                                        
+                                                           k8s:io.cilium.k8s.policy.serviceaccount=local-path-provisioner-service-account                                    
+                                                           k8s:io.kubernetes.pod.namespace=local-path-storage                                                                
+1024       Disabled           Disabled          1          reserved:host                                                                                             ready   
+1371       Disabled           Disabled          16771      k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name=kube-system                 10.244.3.168   ready   
+                                                           k8s:io.cilium.k8s.policy.cluster=kind-kind                                                                        
+                                                           k8s:io.cilium.k8s.policy.serviceaccount=coredns                                                                   
+                                                           k8s:io.kubernetes.pod.namespace=kube-system                                                                       
+                                                           k8s:k8s-app=kube-dns                                                                                              
+3238       Disabled           Disabled          44069      k8s:app.kubernetes.io/name=hubble-ui                                                       10.244.3.217   ready   
+                                                           k8s:app.kubernetes.io/part-of=cilium                                                                              
+                                                           k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name=kube-system                                        
+                                                           k8s:io.cilium.k8s.policy.cluster=kind-kind                                                                        
+                                                           k8s:io.cilium.k8s.policy.serviceaccount=hubble-ui                                                                 
+                                                           k8s:io.kubernetes.pod.namespace=kube-system                                                                       
+                                                           k8s:k8s-app=hubble-ui                                                                                             
+❯ kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+Ship landed
+❯ kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+Ship landed
+❯ kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_policy.yaml
+ciliumnetworkpolicy.cilium.io/rule1 created
+❯ kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_policy.yaml
+Error from server (AlreadyExists): error when creating "https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_policy.yaml": ciliumnetworkpolicies.cilium.io "rule1" already exists
+❯ kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+kubectl get cnp
+
+^C
+❯ kubectl get cnp
+NAME    AGE
+rule1   43s
+❯ kubectl describe cnp rule1
+Name:         rule1
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+API Version:  cilium.io/v2
+Kind:         CiliumNetworkPolicy
+Metadata:
+  Creation Timestamp:  2023-12-28T18:14:13Z
+  Generation:          1
+  Resource Version:    26790
+  UID:                 cd1839b9-5154-4f1c-8d47-616a76720e9c
+Spec:
+  Description:  L3-L4 policy to restrict deathstar access to empire ships only
+  Endpoint Selector:
+    Match Labels:
+      Class:  deathstar
+      Org:    empire
+  Ingress:
+    From Endpoints:
+      Match Labels:
+        Org:  empire
+    To Ports:
+      Ports:
+        Port:      80
+        Protocol:  TCP
+Events:            <none>
+❯ kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
+Panic: deathstar exploded
+
+goroutine 1 [running]:
+main.HandleGarbage(0x2080c3f50, 0x2, 0x4, 0x425c0, 0x5, 0xa)
+        /code/src/github.com/empire/deathstar/
+        temp/main.go:9 +0x64
+main.main()
+        /code/src/github.com/empire/deathstar/
+        temp/main.go:5 +0x85
+❯ kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/sw_l3_l4_l7_policy.yaml
+Warning: resource ciliumnetworkpolicies/rule1 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+ciliumnetworkpolicy.cilium.io/rule1 configured
+❯ kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+Ship landed
+❯ kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-portkubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
+kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-portAccess denied
+Access denied
+❯ kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
+Access denied
+❯ kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing^C
+❯ kubectl -n kube-system exec cilium-67j68 -- cilium policy get
+Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), clean-cilium-state (init), install-cni-binaries (init)
+[
+  {
+    "endpointSelector": {
+      "matchLabels": {
+        "any:class": "deathstar",
+        "any:org": "empire",
+        "k8s:io.kubernetes.pod.namespace": "default"
+      }
+    },
+    "ingress": [
+      {
+        "fromEndpoints": [
+          {
+            "matchLabels": {
+              "any:org": "empire",
+              "k8s:io.kubernetes.pod.namespace": "default"
+            }
+          }
+        ],
+        "toPorts": [
+          {
+            "ports": [
+              {
+                "port": "80",
+                "protocol": "TCP"
+              }
+            ],
+            "rules": {
+              "http": [
+                {
+                  "path": "/v1/request-landing",
+                  "method": "POST"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "labels": [
+      {
+        "key": "io.cilium.k8s.policy.derived-from",
+        "value": "CiliumNetworkPolicy",
+        "source": "k8s"
+      },
+      {
+        "key": "io.cilium.k8s.policy.name",
+        "value": "rule1",
+        "source": "k8s"
+      },
+      {
+        "key": "io.cilium.k8s.policy.namespace",
+        "value": "default",
+        "source": "k8s"
+      },
+      {
+        "key": "io.cilium.k8s.policy.uid",
+        "value": "cd1839b9-5154-4f1c-8d47-616a76720e9c",
+        "source": "k8s"
+      }
+    ],
+    "description": "L7 policy to restrict access to specific HTTP call"
+  },
+  {
+    "endpointSelector": {
+      "matchLabels": {
+        "any:kind": "echo",
+        "k8s:io.kubernetes.pod.namespace": "cilium-test"
+      }
+    },
+    "ingress": [
+      {
+        "fromEndpoints": [
+          {
+            "matchLabels": {
+              "any:other": "client",
+              "k8s:io.kubernetes.pod.namespace": "cilium-test"
+            }
+          }
+        ],
+        "toPorts": [
+          {
+            "ports": [
+              {
+                "port": "8080",
+                "protocol": "TCP"
+              }
+            ],
+            "rules": {
+              "http": [
+                {
+                  "path": "/$",
+                  "method": "GET"
+                },
+                {
+                  "path": "/public$",
+                  "method": "GET"
+                },
+                {
+                  "path": "/private$",
+                  "method": "GET",
+                  "headers": [
+                    "X-Very-Secret-Token: 42"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "labels": [
+      {
+        "key": "io.cilium.k8s.policy.derived-from",
+        "value": "CiliumNetworkPolicy",
+        "source": "k8s"
+      },
+      {
+        "key": "io.cilium.k8s.policy.name",
+        "value": "echo-ingress-l7-http",
+        "source": "k8s"
+      },
+      {
+        "key": "io.cilium.k8s.policy.namespace",
+        "value": "cilium-test",
+        "source": "k8s"
+      },
+      {
+        "key": "io.cilium.k8s.policy.uid",
+        "value": "fbd2562a-2f1a-41c6-ae33-f76aaccb10c7",
+        "source": "k8s"
+      }
+    ],
+    "description": "Allow other client to GET on echo"
+  }
+]
+Revision: 785
+❯ kubectl exec -it -n kube-system cilium-kzgdx -- cilium monitor -v --type l7
+Error from server (NotFound): pods "cilium-kzgdx" not found
+❯ kubectl exec -it -n kube-system cilium-67j68 -- cilium monitor -v --type l7
+Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), clean-cilium-state (init), install-cni-binaries (init)
+Listening for events on 8 CPUs with 64x4096 of shared memory
+Press Ctrl-C to quit
+^C
+Received an interrupt, disconnecting from monitor...
+
+❯ ^[[200~kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml\~
+200~kubectl delete -f 200~kubectlzsh: bad pattern: ^[[200~kubectl
+❯ kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
+service "deathstar" deleted
+deployment.apps "deathstar" deleted
+pod "tiefighter" deleted
+pod "xwing" deleted
+kubectl delete cnp rule1
+```
