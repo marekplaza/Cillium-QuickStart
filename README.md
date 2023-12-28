@@ -369,7 +369,10 @@ Helm chart version:    1.14.5
 Image versions         cilium             quay.io/cilium/cilium:v1.14.5@sha256:d3b287029755b6a47dee01420e2ea469469f1b174a2089c10af7e5e9289ef05b: 4
                        cilium-operator    quay.io/cilium/operator-generic:v1.14.5@sha256:303f9076bdc73b3fc32aaedee64a14f6f44c8bb08ee9e3956d443021103ebe7a: 1
                        hubble-relay       quay.io/cilium/hubble-relay:v1.14.5@sha256:dbef89f924a927043d02b40c18e417c1ea0e8f58b44523b80fef7e3652db24d4: 1
-                       
+```
+
+and enable port forwarding between hubble components:
+```bash                       
 cilium hubble port-forward&
 ```
 
@@ -409,7 +412,7 @@ Dec 28 16:11:49.182: 10.244.2.53 (remote-node) -> 10.244.0.228 (health) to-endpo
 Dec 28 16:11:49.183: 10.244.2.53 (remote-node) <- 10.244.0.228 (health) to-overlay FORWARDED (ICMPv4 EchoReply)
 Dec 28 16:11:55.491: 10.244.3.155:59188 (remote-node) <- 10.244.0.228:4240 (health) to-overlay FORWARDED (TCP Flags: ACK)
 Dec 28 16:11:55.491: 10.244.3.155:59188 (remote-node) -> 10.244.0.228:4240 (health) to-endpoint FORWARDED (TCP Flags: ACK)
-Dec 28 16:12:03.172: 10.244.0.208:38520 (remote-node) <> 10.244.3.13:4240 (health) to-overlay FORWARDED (TCP Flags: ACK)
+Dec 28 16:12:03.172: 10.244.0.208:38520 (remote-node) <> 10.244.3.13:4240 (health) to-overlay FORWARDED (TCP Flags: AChubble statusK)
 Dec 28 16:12:03.175: 10.244.0.208:59790 (remote-node) <> 10.244.1.84:4240 (health) to-overlay FORWARDED (TCP Flags: ACK)
 Dec 28 16:12:03.175: 10.244.0.208:50122 (host) <- 10.244.0.228:4240 (health) to-stack FORWARDED (TCP Flags: ACK)
 Dec 28 16:12:03.175: 10.244.0.208:50122 (host) -> 10.244.0.228:4240 (health) to-endpoint FORWARDED (TCP Flags: ACK)
@@ -421,6 +424,7 @@ You can enable UI as well:
 
 ```bash
 cilium hubble disable
+cilium hubble enable --ui
 
 ❯ cilium hubble ui
 ℹ️  Opening "http://localhost:12000" in your browser...
