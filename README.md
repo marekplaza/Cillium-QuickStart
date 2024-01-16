@@ -463,13 +463,63 @@ Dec 28 16:32:03.113: cilium-test/client2-88575dbb7-d2pss:53580 (ID:51420) <- 1.0
 Dec 28 16:32:03.113: cilium-test/client2-88575dbb7-d2pss:53580 (ID:51420) -> 1.0.0.1:443 (world) to-stack FORWARDED (TCP Flags: ACK)
 ```
 
+If You want to clean up, issue the following commands:
+
+Cilium itself:
+
+```bash
+❯ cilium  uninstall
+🔥 Deleting pods in cilium-test namespace...
+🔥 Deleting cilium-test namespace...
+```
+
+and the kind cluster:
+
+```bash
+❯ kind delete cluster
+Deleting cluster "kind" ...
+Deleted nodes: ["kind-worker" "kind-worker3" "kind-control-plane" "kind-worker2"]
+```
+
+Simply verify results of these destructive steps:
+
+```bash
+❯ kind get clusters
+No kind clusters found.
+❯ kubectl get nodes
+E0116 15:54:11.630402   36938 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0116 15:54:11.631627   36938 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0116 15:54:11.632556   36938 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0116 15:54:11.634791   36938 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0116 15:54:11.635302   36938 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+❯ cilium status
+    /¯¯\
+ /¯¯\__/¯¯\    Cilium:             1 errors
+ \__/¯¯\__/    Operator:           1 errors
+ /¯¯\__/¯¯\    Envoy DaemonSet:    1 errors
+ \__/¯¯\__/    Hubble Relay:       1 warnings
+    \__/       ClusterMesh:        1 warnings
+
+Cluster Pods:          0/0 managed by Cilium
+Helm chart version:    
+Errors:                cilium                   cilium                   Get "http://localhost:8080/apis/apps/v1/namespaces/kube-system/daemonsets/cilium": dial tcp 127.0.0.1:8080: connect: connection refused
+                       cilium-operator          cilium-operator          Get "http://localhost:8080/apis/apps/v1/namespaces/kube-system/deployments/cilium-operator": dial tcp 127.0.0.1:8080: connect: connection refused
+                       cilium-envoy             cilium-envoy             Get "http://localhost:8080/apis/apps/v1/namespaces/kube-system/daemonsets/cilium-envoy": dial tcp 127.0.0.1:8080: connect: connection refused
+Warnings:              hubble-relay             hubble-relay             hubble relay is not deployed
+                       hubble-ui                hubble-ui                hubble ui is not deployed
+                       clustermesh-apiserver    clustermesh-apiserver    clustermesh is not deployed
+❯ hubble status
+failed to connect to 'localhost:4245': connection error: desc = "transport: error while dialing: dial tcp 127.0.0.1:4245: connect: connection refused"
+```
+
 ## What's next?
 
 To further explore Cilium's capabilities, consider deploying a sample/demo application and experimenting with Cilium-based Network Policies. Start with this guide. Give it a try:
 
 https://docs.cilium.io/en/stable/gettingstarted/demo/
 
-My raw output and my console historyyou can find below:
+My raw output and my console history you can find below:
 
 ```bash
  5470  kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.14.5/examples/minikube/http-sw-app.yaml
